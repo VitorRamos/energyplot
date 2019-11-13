@@ -94,7 +94,6 @@ class Energy {
         ];
         var layout = {
             title: "Energy",
-            width: 800,
             height: 800,
             scene: {
                 xaxis: { title: 'Threads' },
@@ -115,7 +114,6 @@ class Energy {
         ];
         var layout = {
             title: "Gradient",
-            width: 800,
             height: 800,
             scene: {
                 xaxis: { title: 'Threads' },
@@ -163,7 +161,8 @@ class Energy {
         for (var p = this.minthr; p < this.maxthr; p++) {
             var aux = [];
             for (var f = this.minfreq; f < this.maxfreq; f += freq_step) {
-                aux.push(this.x0[0] * (((this.x0[1] * f ** 3 + this.x0[2] * f) * p + this.x0[3]) * (this.x0[4] / p - this.x0[4] + 1)) / f);
+                var pw = ((this.x0[1] * f ** 3 + this.x0[2] * f) * p + this.x0[3]);
+                aux.push(this.x0[0] * ( pw * (this.x0[4] / p - this.x0[4] + 1)) / f);
             }
             c.push(aux);
         }
@@ -217,7 +216,6 @@ class Energy {
         );
     }
 }
-
 
 document.addEventListener("DOMContentLoaded", function () {
     eq = new Energy()
