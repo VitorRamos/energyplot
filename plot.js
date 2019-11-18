@@ -96,8 +96,8 @@ class Energy {
             title: "Energy",
             height: 800,
             scene: {
-                xaxis: { title: 'Threads' },
-                yaxis: { title: 'Frequency' },
+                xaxis: { title: 'Frequency' },
+                yaxis: { title: 'Threads' },
                 zaxis: { title: 'Energy' },
             },
         };
@@ -116,8 +116,8 @@ class Energy {
             title: "Gradient",
             height: 800,
             scene: {
-                xaxis: { title: 'Threads' },
-                yaxis: { title: 'Frequency' },
+                xaxis: { title: 'Frequency' },
+                yaxis: { title: 'Threads' },
                 zaxis: { title: 'Energy' },
             },
         };
@@ -161,8 +161,10 @@ class Energy {
         for (var p = this.minthr; p < this.maxthr; p++) {
             var aux = [];
             for (var f = this.minfreq; f < this.maxfreq; f += freq_step) {
-                var pw = ((this.x0[1] * f ** 3 + this.x0[2] * f) * p + this.x0[3]);
-                aux.push(this.x0[0] * ( pw * (this.x0[4] / p - this.x0[4] + 1)) / f);
+                var pw = (this.x0[1]*f**3+this.x0[2]*f)*p+this.x0[3];
+                var perf = (this.x0[4]/p-this.x0[4]+1);
+                var en = this.x0[0]*(pw*perf)/f;
+                aux.push(en);
             }
             c.push(aux);
         }
