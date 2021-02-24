@@ -65,20 +65,20 @@ class Energy {
         var p_static = new Slider("p_static", 0, 3000, 198);
         p_static.update = auxupdate;
 
-        var parallel = new Slider("parallel", 0, 1, 0.5);
+        var parallel = new Slider("parallel", 0, 1, 0.85);
         parallel.update = auxupdate;
 
-        var freq_max = new Slider("freq_max", 1, 10, 5.0);
+        var freq_max = new Slider("freq_max", 1, 10, 2.4);
         freq_max.update = auxupdate;
 
-        var thr_max = new Slider("thr_max", 1, 300, 120);
+        var thr_max = new Slider("thr_max", 1, 300, 32);
         thr_max.update = auxupdate;
 
-        this.x0 = [1, 0.29, 0.97, 198, 0.5];
+        this.x0 = [1, 0.29, 0.97, 198, 0.85];
         this.minfreq = 1.0;
-        this.maxfreq = 5.0;
+        this.maxfreq = 2.4;
         this.minthr = 1;
-        this.maxthr = 120;
+        this.maxthr = 32;
 
         var [a, b, c] = this.compute();
         // Plotting the mesh
@@ -102,24 +102,44 @@ class Energy {
             },
         };
         Plotly.newPlot('3dplot', data, layout, {responsive: true});
+        // var data2 = [
+        //     {
+        //         opacity: 0.8,
+        //         color: 'rgb(300,100,200)',
+        //         type: 'contour',
+        //         x: a,
+        //         y: b,
+        //         z: c,
+        //     }
+        // ];
+        // var layout = {
+        //     title: "Gradient",
+        //     height: 800,
+        //     scene: {
+        //         xaxis: { title: 'Frequency' },
+        //         yaxis: { title: 'Threads' },
+        //         zaxis: { title: 'Energy' },
+        //     },
+        // };
+        // Plotly.newPlot('grad', data2, layout, {responsive: true});
+        var [en, tt] = this.compute_time();
         var data2 = [
             {
                 opacity: 0.8,
                 color: 'rgb(300,100,200)',
-                type: 'contour',
-                x: a,
-                y: b,
-                z: c,
+                type: 'scatter',
+                mode: 'markers',
+                x: tt,
+                y: en,
             }
         ];
         var layout = {
-            title: "Gradient",
+            title: "Pareto",
             height: 800,
-            scene: {
-                xaxis: { title: 'Frequency' },
-                yaxis: { title: 'Threads' },
-                zaxis: { title: 'Energy' },
-            },
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Energy' },
+            // scene: {
+            // },
         };
         Plotly.newPlot('grad', data2, layout, {responsive: true});
     }
@@ -150,6 +170,7 @@ class Energy {
         }
     }
     compute() {
+        console.log(this.x0[4]);
         var a = [], b = [], c = [];
         var freq_step = (this.maxfreq - this.minfreq) / (this.maxthr - this.minthr);
         for (var f = this.minfreq; f < this.maxfreq; f += freq_step) {
@@ -169,6 +190,22 @@ class Energy {
             c.push(aux);
         }
         return [b, a, c];
+    }
+    compute_time() {
+        var a= [], c = [];
+        var freq_step = (this.maxfreq - this.minfreq) / (this.maxthr - this.minthr);
+        for (var p = this.minthr; p < this.maxthr; p++) {
+            var f = this.maxfreq;
+            // for (var f = this.minfreq; f < this.maxfreq; f += freq_step)
+            {
+                var pw = (this.x0[1]*f**3+this.x0[2]*f)*p+this.x0[3];
+                var perf = (this.x0[4]/p-this.x0[4]+1);
+                var en = this.x0[0]*(pw*perf)/f;
+                a.push(en);
+                c.push(perf);
+            }
+        }
+        return [a, c];
     }
     redraw() {
         var [a, b, c] = this.compute();
@@ -194,15 +231,17 @@ class Energy {
                 }
             }
         );
+
+        var [en, tt] = this.compute_time();
         Plotly.animate("grad", {
             data: [
                 {
                     opacity: 0.8,
                     color: 'rgb(300,100,200)',
-                    type: 'contour',
-                    x: a,
-                    y: b,
-                    z: c,
+                    type: 'scatter',
+                    mode: 'markers',
+                    x: tt,
+                    y: en
                 }
             ]
         },
